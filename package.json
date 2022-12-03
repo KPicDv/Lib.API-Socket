@@ -1,6 +1,6 @@
 {
   "name": "@kpic/api-socket",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@kpic/logger": "^1.0.1",
+    "@types/jsonwebtoken": "^8.5.9",
+    "jsonwebtoken": "^8.5.1",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.5.4",
     "typescript": "^4.5.5"

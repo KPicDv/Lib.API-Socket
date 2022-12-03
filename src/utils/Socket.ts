@@ -1,8 +1,11 @@
 import { Logger } from '@kpic/logger';
 import http from 'http';
+import jwt from 'jsonwebtoken';
 import { Server, Socket as BaseSocket } from 'socket.io';
 import { SocketListenerPath } from '../types/socket';
 import Listener from './Listener';
+
+type ListenerClass = { new(socket: BaseSocket): Listener }
 
 export default class Socket {
   private static _instance: Socket;
@@ -12,19 +15,46 @@ export default class Socket {
     this._io = new Server(server, { cors: { origin: '*' } });
   }
 
-  public static init(server: http.Server, listeners: Array<{ new(socket: BaseSocket): Listener }>) {
+  /**
+   * Initialise le Socket.
+   */
+  public static init(server: http.Server) {
     this._instance = new Socket(server);
-    
+  }
+
+  /**
+   * Ajoute l'action à exécuter lors de l'authentification.
+   */
+  public static onAuth(callback: (token: string) => void) {
+    Socket.io.use((socket, next) => {
+      if (typeof socket.handshake.query.token != 'string') {
+        next(new Error('Authentication error'))
+      } else {
+        try {
+          callback(socket.handshake.query.token)
+          next()
+        } catch (error: any) {
+          next(error)
+        }
+      }
+    })
+  }
+
+  /**
+   * Ajoute les actions à exécuter lors de la connexion.
+   */
+  public static onConnection(listeners: Array<ListenerClass>) {
     Socket.io.on('connection', (socket) => {
       Logger.log(`[${socket.id}] connection`.green);
 
       listeners.forEach((Listener) => {
         const paths = Reflect.getMetadata('paths', Listener) as Array<SocketListenerPath>;
-        const instance = new Listener(socket);
-
+        
         paths.forEach((path) => {
-          const action = (instance[path.action as keyof typeof instance] as any).bind(instance);
           socket.on(path.path, (data: any) => {
+            const instance = new Listener(socket);
+            const action = (instance[path.action as keyof typeof instance] as any).bind(instance);
+
             Logger.log(`[${socket.id}] ${path.path}`.yellow);
             try {
               action(data);
