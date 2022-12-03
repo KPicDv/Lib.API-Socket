@@ -16,7 +16,7 @@ export default class Socket {
     /**
      * Ajoute l'action à exécuter lors de l'authentification.
      */
-    static onAuth(callback: (token: string) => void): void;
+    static onAuth(callback: (token: string, socket: BaseSocket) => void): void;
     /**
      * Ajoute les actions à exécuter lors de la connexion.
      */

@@ -22,7 +22,7 @@ class Socket {
             }
             else {
                 try {
-                    callback(socket.handshake.query.token);
+                    callback(socket.handshake.query.token, socket);
                     next();
                 }
                 catch (error) {

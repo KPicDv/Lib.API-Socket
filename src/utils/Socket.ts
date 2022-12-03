@@ -1,6 +1,5 @@
 import { Logger } from '@kpic/logger';
 import http from 'http';
-import jwt from 'jsonwebtoken';
 import { Server, Socket as BaseSocket } from 'socket.io';
 import { SocketListenerPath } from '../types/socket';
 import Listener from './Listener';
@@ -25,13 +24,13 @@ export default class Socket {
   /**
    * Ajoute l'action à exécuter lors de l'authentification.
    */
-  public static onAuth(callback: (token: string) => void) {
+  public static onAuth(callback: (token: string, socket: BaseSocket) => void) {
     Socket.io.use((socket, next) => {
       if (typeof socket.handshake.query.token != 'string') {
         next(new Error('Authentication error'))
       } else {
         try {
-          callback(socket.handshake.query.token)
+          callback(socket.handshake.query.token, socket)
           next()
         } catch (error: any) {
           next(error)
