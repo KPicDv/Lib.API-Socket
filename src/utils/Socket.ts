@@ -1,6 +1,7 @@
 import { Logger } from '@kpic/logger';
 import http from 'http';
 import { Server, Socket as BaseSocket } from 'socket.io';
+import SocketException from '../exceptions/SocketException';
 import { SocketListenerPath } from '../types/socket';
 import Listener from './Listener';
 
@@ -67,6 +68,7 @@ export default class Socket {
   }
 
   static get io() {
+    if (!this._instance) throw new SocketException('Socket n\'a pas été initialisé.')
     return this._instance._io;
   }
 }

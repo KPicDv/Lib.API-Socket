@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = require("@kpic/logger");
 const socket_io_1 = require("socket.io");
+const SocketException_1 = __importDefault(require("../exceptions/SocketException"));
 class Socket {
     constructor(server) {
         this._io = new socket_io_1.Server(server, { cors: { origin: '*' } });
@@ -56,6 +60,8 @@ class Socket {
         });
     }
     static get io() {
+        if (!this._instance)
+            throw new SocketException_1.default('Socket n\'a pas été initialisé.');
         return this._instance._io;
     }
 }
